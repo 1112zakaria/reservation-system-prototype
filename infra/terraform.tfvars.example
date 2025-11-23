@@ -1,0 +1,13 @@
+region      = "us-east-1"
+project_name = "reservations-mvp"
+
+# REQUIRED
+key_name   = "your-keypair-name"
+repo_url   = "https://github.com/youruser/reservations-mvp.git"
+
+# Strongly recommended to lock SSH down:
+ssh_cidr = "YOUR.PUBLIC.IP/32"
+
+# Optional:
+# repo_branch = "main"
+# app_env_file_ssm_param = "/reservations-mvp/prod-env"

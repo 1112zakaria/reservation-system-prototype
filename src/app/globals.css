@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-color: 15 23 42;
+}
+
+body {
+  @apply bg-white text-slate-900;
+}
