@@ -6,13 +6,13 @@ export default function HomePage() {
     <main className="mx-auto max-w-4xl p-8 space-y-10">
       <section className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight">
-          Reservations MVP
+          Booking System MVP
         </h1>
         <p className="text-slate-600 text-lg">
-          A clean scaffold for a brandable booking/reservation website.
+          A clean scaffold for a brandable booking / reservation website.
         </p>
         <div className="flex gap-3">
-          <Link href="/reservations">
+          <Link href="/bookings">
             <Button>Book Now</Button>
           </Link>
           <Link href="/admin/resources">
@@ -37,7 +37,7 @@ export default function HomePage() {
         <div className="rounded-2xl border p-5 shadow-sm">
           <h3 className="font-semibold mb-1">Extensible</h3>
           <p className="text-sm text-slate-600">
-            Add auth, payments, resources, policies, and more.
+            Add auth, payments, event templates, policies, and more.
           </p>
         </div>
       </section>

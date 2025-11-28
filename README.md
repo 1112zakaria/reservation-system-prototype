@@ -1,6 +1,6 @@
-# Reservations MVP Scaffold
+# Booking System MVP Scaffold
 
-Generic Next.js + Tailwind + Prisma + Postgres project you can extend for a booking/reservation business.
+Generic Next.js + Tailwind + Prisma + Postgres project you can extend for a booking / reservation business.
 
 ## Prereqs
 - Node 18+
@@ -27,14 +27,14 @@ npm run dev
 
 Visit:
 - Home: http://localhost:3000
-- Bookings: http://localhost:3000/reservations
-- Admin resources: http://localhost:3000/admin/resources
-- Admin reservations: http://localhost:3000/admin/reservations
+- Bookings: http://localhost:3000/bookings
+- Admin event templates: http://localhost:3000/admin/event-templates
+- Admin bookings: http://localhost:3000/admin/bookings
 
 ## How to use (phase-1)
-1. Go to `/admin/resources` and create a Resource.
-2. Add weekly availability rules to that Resource.
-3. Copy the Resource ID into `/reservations`, pick a date, and book a slot.
+1. Go to `/admin/event-templates` and create an Event Template.
+2. Add weekly availability rules to that Event Template.
+3. Copy the Event Template ID into `/bookings`, pick a date, and book a slot.
 
 ## Extend next
 - Add auth for admin routes.
@@ -45,3 +45,19 @@ Visit:
 
 ## AWS VM deploy (Terraform)
 See `infra/README.md` for provisioning a minimal EC2 + Docker-based deployment.
+
+
+## Prisma migrations
+
+After updating `prisma/schema.prisma` to reflect new requirements:
+
+```bash
+# ensure Postgres is running
+docker compose up -d
+
+# create and apply a new migration
+npx prisma migrate dev --name align-data-model
+
+# regenerate the Prisma Client
+npx prisma generate
+```

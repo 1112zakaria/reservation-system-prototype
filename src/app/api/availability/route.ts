@@ -4,45 +4,42 @@ import { generateSlotsForDate } from "@/modules/reservations/slotting";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const resourceId = searchParams.get("resourceId");
+  const eventTemplateId = searchParams.get("eventTemplateId");
   const dateStr = searchParams.get("date"); // YYYY-MM-DD
 
-  if (!resourceId || !dateStr) {
-    return NextResponse.json({ error: "resourceId and date are required" }, { status: 400 });
+  if (!eventTemplateId || !dateStr) {
+    return NextResponse.json({ error: "eventTemplateId and date are required" }, { status: 400 });
   }
 
   const date = new Date(dateStr + "T00:00:00");
-  const resource = await prisma.resource.findUnique({
-    where: { id: resourceId },
+  const eventTemplate = await prisma.eventTemplate.findUnique({
+    where: { id: eventTemplateId },
     include: { rules: true }
   });
-  if (!resource) {
-    return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+
+  if (!eventTemplate) {
+    return NextResponse.json({ error: "Event template not found" }, { status: 404 });
   }
 
   const slots = generateSlotsForDate(
     date,
-    resource.rules.map(r => ({
-      weekday: r.weekday,
-      startTime: r.startTime,
-      endTime: r.endTime,
-      isBlackout: r.isBlackout,
-      date: r.date ?? undefined
-    })),
-    resource.slotMinutes
+    eventTemplate.rules,
+    eventTemplate.slotMinutes
   );
 
-  if (!slots.length) return NextResponse.json({ resourceId, date: dateStr, slots: [] });
+  if (!slots.length) {
+    return NextResponse.json({ eventTemplateId, date: dateStr, slots: [] });
+  }
 
-  const reservations = await prisma.reservation.findMany({
+  const bookings = await prisma.booking.findMany({
     where: {
-      resourceId,
+      eventTemplateId,
       startAt: { gte: slots[0].startAt, lt: slots[slots.length - 1].endAt }
     }
   });
 
-  const bookedStarts = new Set(reservations.map(r => r.startAt.toISOString()));
+  const bookedStarts = new Set(bookings.map(b => b.startAt.toISOString()));
   const available = slots.filter(s => !bookedStarts.has(s.startAt.toISOString()));
 
-  return NextResponse.json({ resourceId, date: dateStr, slots: available });
+  return NextResponse.json({ eventTemplateId, date: dateStr, slots: available });
 }
