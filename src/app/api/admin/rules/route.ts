@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { z } from "zod";
 
 const CreateRule = z.object({
-  resourceId: z.string(),
+  eventTemplateId: z.string(),
   weekday: z.number().int().min(0).max(6),
   startTime: z.string(), // "09:00"
   endTime: z.string(),   // "17:00"
@@ -14,12 +14,19 @@ const CreateRule = z.object({
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = CreateRule.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
 
-  const { date, ...rest } = parsed.data;
+  const { eventTemplateId, weekday, startTime, endTime, isBlackout, date } = parsed.data;
+
   const rule = await prisma.availabilityRule.create({
     data: {
-      ...rest,
+      eventTemplateId,
+      weekday,
+      startTime,
+      endTime,
+      isBlackout,
       date: date ? new Date(date + "T00:00:00") : null
     }
   });

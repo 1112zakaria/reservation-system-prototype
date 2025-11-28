@@ -7,29 +7,44 @@ import { Input } from "@/components/ui/input";
 type Slot = { startAt: string; endAt: string };
 
 export default function BookingForm() {
-  const [resourceId, setResourceId] = useState("");
+  const [eventTemplateId, setEventTemplateId] = useState("");
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
   const [name, setName] = useState("");
 
   useEffect(() => {
-    async function load() {
-      if (!resourceId || !date) return;
-      const res = await fetch(`/api/availability?resourceId=${resourceId}&date=${date}`);
+    async function loadAvailability() {
+      setSelectedStart(null);
+      if (!eventTemplateId || !date) {
+        setSlots([]);
+        return;
+      }
+
+      const res = await fetch(
+        `/api/availability?eventTemplateId=${encodeURIComponent(eventTemplateId)}&date=${encodeURIComponent(
+          date
+        )}`
+      );
+      if (!res.ok) {
+        setSlots([]);
+        return;
+      }
       const data = await res.json();
-      setSlots(data.slots || []);
+      setSlots(data.slots ?? []);
     }
-    load();
-  }, [resourceId, date]);
+
+    loadAvailability();
+  }, [eventTemplateId, date]);
 
   async function book() {
-    if (!selectedStart || !name) return;
-    const res = await fetch("/api/reservations", {
+    if (!selectedStart || !name || !eventTemplateId) return;
+
+    const res = await fetch("/api/bookings", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        resourceId,
+        eventTemplateId,
         startAt: selectedStart,
         customerName: name
       })
@@ -37,48 +52,70 @@ export default function BookingForm() {
 
     if (res.ok) {
       alert("Booked!");
+      // refresh availability
+      const data = await res.json();
+      console.log("Booking created", data);
       setSelectedStart(null);
-      // refresh
-      const data = await (await fetch(`/api/availability?resourceId=${resourceId}&date=${date}`)).json();
-      setSlots(data.slots || []);
+      const availability = await fetch(
+        `/api/availability?eventTemplateId=${encodeURIComponent(eventTemplateId)}&date=${encodeURIComponent(
+          date
+        )}`
+      );
+      const availabilityData = await availability.json();
+      setSlots(availabilityData.slots ?? []);
     } else {
-      const e = await res.json();
-      alert(e.error || "Failed to book");
+      const data = await res.json().catch(() => ({}));
+      alert(data.error ?? "Failed to book");
     }
   }
 
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="Resource ID (create in admin)"
-        value={resourceId}
-        onChange={e => setResourceId(e.target.value)}
-      />
-      <Input
-        type="date"
-        value={date}
-        onChange={e => setDate(e.target.value)}
-      />
-      <Input
-        placeholder="Your name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Event Template ID</label>
+        <Input
+          value={eventTemplateId}
+          onChange={e => setEventTemplateId(e.target.value)}
+          placeholder="Paste an Event Template ID"
+        />
+      </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        {slots.map(s => {
-          const isSelected = selectedStart === s.startAt;
-          return (
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Date</label>
+        <Input
+          type="date"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Your Name</label>
+        <Input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Jane Doe"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="text-sm font-medium">Available Slots</div>
+        <div className="flex flex-wrap gap-2">
+          {slots.map(s => (
             <Button
               key={s.startAt}
-              variant={isSelected ? "default" : "outline"}
+              type="button"
+              variant={selectedStart === s.startAt ? "default" : "outline"}
               onClick={() => setSelectedStart(s.startAt)}
               className="justify-start"
             >
               {new Date(s.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </Button>
-          );
-        })}
+          ))}
+          {slots.length === 0 && (
+            <div className="text-sm text-slate-500">No available slots for this date.</div>
+          )}
+        </div>
       </div>
 
       <Button disabled={!selectedStart || !name} onClick={book}>

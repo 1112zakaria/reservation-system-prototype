@@ -270,21 +270,24 @@ Represents a client’s reservation of a slot.
 
 ## 3. Mapping to Current Implementation
 
-The current Prisma schema in this repository uses the following entities:
+The Prisma schema in this repository uses the following entities:
 
-- `Resource` – roughly analogous to `EventTemplate` but simplified.
-- `AvailabilityRule` – weekday/time rules attached to a `Resource`.
-- `Reservation` – bookings referencing a `Resource` and specific start/end datetimes.
+- `EventTemplate` – primary representation of the conceptual Event Template / Event Series.
+- `AvailabilityRule` – weekday/time rules attached to an `EventTemplate`.
+- `EventException` – exceptions to the standard recurrence pattern (cancelled or modified dates).
+- `Booking` – client bookings referencing an `EventTemplate` and specific start/end datetimes.
 
-As the project evolves:
+Compared to the conceptual ER diagram:
 
-- `Resource` is expected to converge toward `EventTemplate`.
-- `AvailabilityRule` remains useful but may be supplemented or replaced by `EventException` and explicit `EventOccurrence` records.
-- `Reservation` is expected to align closely with `Booking` and may gain explicit foreign keys to `Slot` rather than storing times directly.
+- `EventTemplate` corresponds directly to **EVENT_TEMPLATE**.
+- `AvailabilityRule` + `EventException` together represent the scheduling rules and overrides.
+- `Booking` corresponds to **BOOKING**.
+- `EventOccurrence` and `Slot` are not yet explicit tables; occurrences and slots are still generated on the fly from rules. A future migration could introduce concrete `EventOccurrence` and `Slot` tables when you need more detailed per-session management.
 
 ---
 
 ## 4. Next Steps
+
 
 - Decide which parts of the conceptual model to implement in **Phase 1** (e.g., EventTemplate + implicit occurrences, no explicit slots table vs. fully normalized model).
 - Incrementally evolve the Prisma schema, keeping this document as a reference and updating it as the data model changes.
