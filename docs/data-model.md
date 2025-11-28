@@ -32,7 +32,7 @@ erDiagram
 
     ROLE {
         string  id
-        string  name   // Admin, Host, Client
+        string  name
     }
 
     USER_ROLE {
@@ -48,11 +48,11 @@ erDiagram
         string  host_id
         string  location
         string  timezone
-        string  status   // draft, published, archived
+        string  status
         date    start_date
         date    end_date
         int     recurrence_interval_weeks
-        string  days_of_week // e.g. JSON or bitmask
+        string  days_of_week
         time    event_start_time
         time    event_end_time
         int     slot_duration_minutes
@@ -68,7 +68,7 @@ erDiagram
         date    date
         datetime start_datetime
         datetime end_datetime
-        string  status        // scheduled, cancelled, completed
+        string  status
         string  effective_host_id
         datetime created_at
         datetime updated_at
@@ -80,7 +80,7 @@ erDiagram
         datetime start_datetime
         datetime end_datetime
         int     capacity
-        string  status        // available, full, closed, cancelled
+        string  status
         datetime created_at
         datetime updated_at
     }
@@ -89,7 +89,7 @@ erDiagram
         string  id
         string  slot_id
         string  client_id
-        string  status        // pending, confirmed, cancelled, no_show
+        string  status
         string  notes
         datetime created_at
         datetime updated_at
@@ -99,8 +99,8 @@ erDiagram
         string  id
         string  event_template_id
         date    date
-        string  type          // cancelled, modified
-        string  payload       // optional JSON for modifications
+        string  type
+        string  payload
         datetime created_at
         datetime updated_at
     }
