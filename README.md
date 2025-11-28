@@ -3,7 +3,7 @@
 Generic Next.js + Tailwind + Prisma + Postgres project you can extend for a booking / reservation business.
 
 ## Prereqs
-- Node 18+
+- Node 22
 - Docker Desktop (for local Postgres)
 
 ## Setup
